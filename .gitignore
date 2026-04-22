@@ -4,3 +4,4 @@
 # 但排除脚本文件和 git 忽略文件本身
 !deploy_rustdesk.sh
 !.gitignore
+!README.md
