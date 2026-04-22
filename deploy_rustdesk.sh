@@ -240,9 +240,9 @@ echo -e "中继服务器 (Relay Server): ${DOMAIN}"
 echo -e "通信密钥 (Key): ${USER_KEY}"
 echo -e "--------------------------------------------------------------------------"
 
-# 生成 base64 的一键导入配置字符串 (无等号填充)
+# 生成 base64 的一键导入配置字符串
 CONFIG_JSON="{\"host\":\"${DOMAIN}\",\"relay\":\"${DOMAIN}\",\"key\":\"${USER_KEY}\"}"
-BASE64_CONFIG=$(echo -n "$CONFIG_JSON" | base64 | tr -d '\n=')
+BASE64_CONFIG=$(echo -n "$CONFIG_JSON" | base64 -w 0)
 
 echo -e "${GREEN}一键导入配置字符串 (请在客户端复制后导入):${NC}"
 echo -e "${BASE64_CONFIG}"
