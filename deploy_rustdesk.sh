@@ -20,6 +20,36 @@ NC='\033[0m'
 
 echo -e "${GREEN}=== 欢迎使用 RustDesk Server 一键部署脚本 ===${NC}"
 
+echo "1. 安装/更新 RustDesk Server"
+echo "2. 卸载 RustDesk Server"
+read -p "请选择操作 [默认: 1]: " action_choice
+
+if [[ "$action_choice" == "2" ]]; then
+    echo -e "\n${YELLOW}>>> 正在卸载 RustDesk Server...${NC}"
+    if [ "$EUID" -ne 0 ]; then
+        echo -e "${RED}错误: 卸载需要 root 权限，请使用 sudo 运行此脚本。${NC}"
+        exit 1
+    fi
+    INSTALL_DIR="/opt/rustdesk"
+    if [ -d "$INSTALL_DIR" ]; then
+        cd "$INSTALL_DIR"
+        if command -v docker > /dev/null && docker compose version > /dev/null 2>&1; then
+            docker compose down -v || true
+        fi
+        cd /
+        read -p "是否删除所有配置文件和数据? (y/n, 默认y): " del_data
+        if [[ "$del_data" != "n" && "$del_data" != "N" ]]; then
+            rm -rf "$INSTALL_DIR"
+            echo -e "${GREEN}RustDesk Server 已成功卸载，相关数据已被完全清除。${NC}"
+        else
+            echo -e "${GREEN}RustDesk Server 容器已移除，但保留了数据目录 $INSTALL_DIR。${NC}"
+        fi
+    else
+        echo -e "${YELLOW}未检测到 RustDesk 安装目录 ($INSTALL_DIR)，无需卸载。${NC}"
+    fi
+    exit 0
+fi
+
 # 1. 检查 root 权限
 if [ "$EUID" -ne 0 ]; then
   echo -e "${YELLOW}提示: 请使用 root 权限或 sudo 运行此脚本。${NC}"
@@ -123,10 +153,9 @@ fi
 
 # 6. 获取用户配置
 echo -e "\n${GREEN}=== 配置 RustDesk Server ===${NC}"
-echo "默认服务器域名为: ${DOMAIN}"
-read -p "是否使用默认域名 [${DOMAIN}]? (y/n, 默认y): " use_default_domain
-if [[ "$use_default_domain" == "n" || "$use_default_domain" == "N" ]]; then
-    read -p "请输入您的服务器域名或 IP: " DOMAIN
+read -p "请输入您的服务器域名或 IP [默认: ${DOMAIN}]: " input_domain
+if [ -n "$input_domain" ]; then
+    DOMAIN="$input_domain"
 fi
 
 while true; do
