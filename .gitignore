@@ -1,0 +1,6 @@
+# 忽略所有文件
+*
+
+# 但排除脚本文件和 git 忽略文件本身
+!deploy_rustdesk.sh
+!.gitignore
